@@ -64,5 +64,23 @@ namespace Steamworks
 
 			return item;
 		}
-	}
+
+        public static PublishedFileId[] GetSubscribedItemIds()
+        {
+            uint amount = Internal.GetNumSubscribedItems();
+            PublishedFileId[] ids = new PublishedFileId[amount];
+            Internal.GetSubscribedItems(ids, amount);
+            return ids;
+        }
+
+        public static string GetItemInstallDirectory(PublishedFileId id)
+        {
+            ulong punSizeOnDisk = 0;
+            StringBuilder builder = new StringBuilder(1024 * 32);
+            uint punTimeStamp = 0;
+            Internal.GetItemInstallInfo(id, ref punSizeOnDisk, builder, (uint)builder.Capacity, ref punTimeStamp);
+            return builder.ToString();
+        }
+
+    }
 }
