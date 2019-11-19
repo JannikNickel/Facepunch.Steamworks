@@ -65,6 +65,24 @@ namespace Steamworks
 			return item;
 		}
 
+		public static async Task<bool> StartPlaytimeTracking(PublishedFileId fileId)
+		{
+			var result = await Internal.StartPlaytimeTracking(new[] {fileId}, 1);
+			return result.Value.Result == Result.OK;
+		}
+		
+		public static async Task<bool> StopPlaytimeTracking(PublishedFileId fileId)
+		{
+			var result = await Internal.StopPlaytimeTracking(new[] {fileId}, 1);
+			return result.Value.Result == Result.OK;
+		}
+		
+		public static async Task<bool> StopPlaytimeTrackingForAllItems()
+		{
+			var result = await Internal.StopPlaytimeTrackingForAllItems();
+			return result.Value.Result == Result.OK;
+		}
+
         public static PublishedFileId[] GetSubscribedItemIds()
         {
             uint amount = Internal.GetNumSubscribedItems();
@@ -81,6 +99,5 @@ namespace Steamworks
             Internal.GetItemInstallInfo(id, ref punSizeOnDisk, builder, (uint)builder.Capacity, ref punTimeStamp);
             return builder.ToString();
         }
-
-    }
+	}
 }
