@@ -216,5 +216,10 @@ namespace Steamworks.Ugc
 		/// https://partner.steamgames.com/doc/features/workshop/implementation#Legal
 		/// </summary>
 		public bool NeedsWorkshopAgreement;
-	}
+
+        public override string ToString()
+        {
+            return Result.ToString();
+        }
+    }
 }

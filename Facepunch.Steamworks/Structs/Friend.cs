@@ -93,8 +93,6 @@ namespace Steamworks
 
 		public int SteamLevel => SteamFriends.Internal.GetFriendSteamLevel( Id );
 
-
-
 		public FriendGameInfo? GameInfo
 		{
 			get
