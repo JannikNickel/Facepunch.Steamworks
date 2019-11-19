@@ -17,6 +17,8 @@ namespace Steamworks
 		{
 			get
 			{
+				SteamClient.ValidCheck();
+
 				if ( _internal == null )
 				{
 					_internal = new ISteamFriends();
@@ -114,7 +116,7 @@ namespace Steamworks
 		{
 			for ( int i=0; i<Internal.GetFriendCount( (int) FriendFlags.Immediate ); i++ )
 			{
-				yield return new Friend( Internal.GetFriendByIndex( i, 0xFFFF ) );
+				yield return new Friend( Internal.GetFriendByIndex( i, (int)FriendFlags.Immediate ) );
 			}
 		}
 
@@ -122,7 +124,7 @@ namespace Steamworks
 		{
 			for ( int i = 0; i < Internal.GetFriendCount( (int)FriendFlags.Blocked ); i++ )
 			{
-				yield return new Friend( Internal.GetFriendByIndex( i, 0xFFFF ) );
+				yield return new Friend( Internal.GetFriendByIndex( i, (int)FriendFlags.Blocked) );
 			}
 		}
 
@@ -132,6 +134,14 @@ namespace Steamworks
 			{
 				yield return new Friend( Internal.GetCoplayFriend( i ) );
 			}
+		}
+
+		public static IEnumerable<Friend> GetFromSource( SteamId steamid )
+		{
+		    for ( int i = 0; i < Internal.GetFriendCountFromSource( steamid ); i++ )
+		    {
+		        yield return new Friend( Internal.GetFriendFromSourceByIndex( steamid, i ) );
+		    }
 		}
 
 		/// <summary>
@@ -251,8 +261,12 @@ namespace Steamworks
 		/// </summary>
 		public static bool SetRichPresence( string key, string value )
 		{
-			richPresence[key] = value;
-			return Internal.SetRichPresence( key, value );
+			bool success = Internal.SetRichPresence( key, value );
+
+			if ( success ) 
+				richPresence[key] = value;
+
+			return success;
 		}
 
 		/// <summary>
