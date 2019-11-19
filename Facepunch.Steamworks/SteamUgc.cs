@@ -94,10 +94,9 @@ namespace Steamworks
         public static string GetItemInstallDirectory(PublishedFileId id)
         {
             ulong punSizeOnDisk = 0;
-            StringBuilder builder = new StringBuilder(1024 * 32);
             uint punTimeStamp = 0;
-            Internal.GetItemInstallInfo(id, ref punSizeOnDisk, builder, (uint)builder.Capacity, ref punTimeStamp);
-            return builder.ToString();
+            Internal.GetItemInstallInfo(id, ref punSizeOnDisk, out string pchFolder, ref punTimeStamp);
+            return pchFolder;
         }
 	}
 }
