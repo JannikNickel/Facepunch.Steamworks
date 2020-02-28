@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Steamworks.Data;
 
@@ -125,11 +126,11 @@ namespace Steamworks.Ugc
 
 		/// <summary>
 		/// Start downloading this item.
-		/// If this returns false the item isn#t getting downloaded.
+		/// If this returns false the item isn't getting downloaded.
 		/// </summary>
 		public bool Download( bool highPriority = false )
 		{
-			return SteamUGC.Internal.DownloadItem( Id, highPriority );
+			return SteamUGC.Download( Id, highPriority );
 		}
 
 		/// <summary>
@@ -182,8 +183,7 @@ namespace Steamworks.Ugc
 
 				ulong size = 0;
 				uint ts = 0;
-
-				if ( !SteamUGC.Internal.GetItemInstallInfo( Id, ref size, out var strVal, ref ts ) )
+				if ( !SteamUGC.Internal.GetItemInstallInfo( Id, ref size, out _, ref ts ) )
 					return 0;
 
 				return (long) size;
@@ -197,7 +197,9 @@ namespace Steamworks.Ugc
 		{
 			get
 			{
-				if ( !NeedsUpdate ) return 1;
+				//changed from NeedsUpdate as it's false when validating and redownloading ugc
+				//possibly similar properties should also be changed
+				if ( !IsDownloading ) return 1;
 
 				ulong downloaded = 0;
 				ulong total = 0;
@@ -254,10 +256,20 @@ namespace Steamworks.Ugc
             return result?.Result == Result.OK;
         }
 
-        /// <summary>
-        /// Allows the user to unsubscribe from this item
-        /// </summary>
-        public async Task<bool> Unsubscribe ()
+		/// <summary>
+		/// Allows the user to subscribe to download this item asyncronously
+		/// If CancellationToken is default then there is 60 seconds timeout
+		/// Progress will be set to 0-1
+		/// </summary>
+		public async Task<bool> DownloadAsync( Action<float> progress = null, int milisecondsUpdateDelay = 60, CancellationToken ct = default )
+		{
+			return await SteamUGC.DownloadAsync( Id, progress, milisecondsUpdateDelay, ct );
+		}
+
+		/// <summary>
+		/// Allows the user to unsubscribe from this item
+		/// </summary>
+		public async Task<bool> Unsubscribe ()
         {
             var result = await SteamUGC.Internal.UnsubscribeItem( _id );
             return result?.Result == Result.OK;
