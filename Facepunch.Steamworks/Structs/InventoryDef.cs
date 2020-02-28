@@ -102,7 +102,10 @@ namespace Steamworks
 
 			if ( !SteamInventory.Internal.GetItemDefinitionProperty( Id, name, out var vl, ref _ ) )
 				return null;
-
+				
+			if (name == null) //return keys string
+				return vl;
+				
 			if ( _properties == null )
 				_properties = new Dictionary<string, string>();
 
@@ -132,7 +135,7 @@ namespace Steamworks
 			string val = GetProperty( name );
 
 			if ( string.IsNullOrEmpty( val ) )
-				return default( T );
+				return default;
 
 			try
 			{
@@ -140,7 +143,7 @@ namespace Steamworks
 			}
 			catch ( System.Exception )
 			{
-				return default( T );
+				return default;
 			}
 		}
 
