@@ -1826,7 +1826,7 @@ namespace Steamworks
 	//
 	// EUGCQuery
 	//
-	internal enum UGCQuery : int
+	public enum UGCQuery : int
 	{
 		RankedByVote = 0,
 		RankedByPublicationDate = 1,

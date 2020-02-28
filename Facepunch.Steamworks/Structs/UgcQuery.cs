@@ -16,6 +16,9 @@ namespace Steamworks.Ugc
 		AppId creatorApp;
         string searchText;
 
+        public UgcType MatchingType => matchingType;
+        public UGCQuery QueryType => queryType;
+
 		public Query( UgcType type ) : this()
 		{
 			matchingType = type;
