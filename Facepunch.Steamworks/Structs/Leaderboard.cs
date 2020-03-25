@@ -100,6 +100,23 @@ namespace Steamworks.Data
 			return await LeaderboardResultToEntries( r.Value );
 		}
 
+		/// <summary>
+		/// Used to retrieve the leaderboard entry for a specific user
+		/// </summary>
+		public async Task<LeaderboardEntry?> GetScoresFromUser(SteamId user)
+		{
+			var r = await SteamUserStats.Internal.DownloadLeaderboardEntriesForUsers(Id, new SteamId[] { user }, 1);
+			if(!r.HasValue)
+				return null;
+
+			LeaderboardEntry[] entries = await LeaderboardResultToEntries(r.Value);
+			if(entries.Length > 0)
+			{
+				return entries[0];
+			}
+			return null;
+		}
+
 		#region util
 		internal async Task<LeaderboardEntry[]> LeaderboardResultToEntries( LeaderboardScoresDownloaded_t r )
 		{
