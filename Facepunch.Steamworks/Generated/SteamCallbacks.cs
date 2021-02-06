@@ -7,6 +7,31 @@ using System.Threading.Tasks;
 namespace Steamworks.Data
 {
 	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct BroadcastUploadStart_t : ICallbackData
+	{
+		[MarshalAs(UnmanagedType.I1)]
+		internal bool IsRTMP; // m_bIsRTMP bool
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(BroadcastUploadStart_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.BroadcastUploadStart;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct BroadcastUploadStop_t : ICallbackData
+	{
+		internal BroadcastUploadResult Result; // m_eResult EBroadcastUploadResult
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(BroadcastUploadStop_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.BroadcastUploadStop;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
 	internal struct SteamServersConnected_t : ICallbackData
 	{
 		
@@ -470,6 +495,20 @@ namespace Steamworks.Data
 		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(UnreadChatMessagesChanged_t) );
 		public int DataSize => _datasize;
 		public CallbackType CallbackType => CallbackType.UnreadChatMessagesChanged;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct OverlayBrowserProtocolNavigation_t : ICallbackData
+	{
+		internal string RgchURIUTF8() => System.Text.Encoding.UTF8.GetString( RgchURI, 0, System.Array.IndexOf<byte>( RgchURI, 0 ) );
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)] // byte[] rgchURI
+		internal byte[] RgchURI; // rgchURI char [1024]
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(OverlayBrowserProtocolNavigation_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.OverlayBrowserProtocolNavigation;
 		#endregion
 	}
 	
@@ -1606,6 +1645,22 @@ namespace Steamworks.Data
 	}
 	
 	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct TimedTrialStatus_t : ICallbackData
+	{
+		internal AppId AppID; // m_unAppID AppId_t
+		[MarshalAs(UnmanagedType.I1)]
+		internal bool IsOffline; // m_bIsOffline bool
+		internal uint SecondsAllowed; // m_unSecondsAllowed uint32
+		internal uint SecondsPlayed; // m_unSecondsPlayed uint32
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(TimedTrialStatus_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.TimedTrialStatus;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
 	internal struct P2PSessionRequest_t : ICallbackData
 	{
 		internal ulong SteamIDRemote; // m_steamIDRemote CSteamID
@@ -2612,31 +2667,6 @@ namespace Steamworks.Data
 	}
 	
 	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct BroadcastUploadStart_t : ICallbackData
-	{
-		[MarshalAs(UnmanagedType.I1)]
-		internal bool IsRTMP; // m_bIsRTMP bool
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(BroadcastUploadStart_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.BroadcastUploadStart;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct BroadcastUploadStop_t : ICallbackData
-	{
-		internal BroadcastUploadResult Result; // m_eResult EBroadcastUploadResult
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(BroadcastUploadStop_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.BroadcastUploadStop;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
 	internal struct SteamParentalSettingsChanged_t : ICallbackData
 	{
 		
@@ -2668,6 +2698,30 @@ namespace Steamworks.Data
 		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamRemotePlaySessionDisconnected_t) );
 		public int DataSize => _datasize;
 		public CallbackType CallbackType => CallbackType.SteamRemotePlaySessionDisconnected;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct SteamNetworkingMessagesSessionRequest_t : ICallbackData
+	{
+		internal NetIdentity DentityRemote; // m_identityRemote SteamNetworkingIdentity
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamNetworkingMessagesSessionRequest_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.SteamNetworkingMessagesSessionRequest;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct SteamNetworkingMessagesSessionFailed_t : ICallbackData
+	{
+		internal ConnectionInfo Nfo; // m_info SteamNetConnectionInfo_t
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamNetworkingMessagesSessionFailed_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.SteamNetworkingMessagesSessionFailed;
 		#endregion
 	}
 	

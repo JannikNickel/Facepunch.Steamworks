@@ -53,6 +53,7 @@ namespace Steamworks
 			public override void OnDisconnected( Connection connection, ConnectionInfo data )
 			{
 				Console.WriteLine( $" - OnDisconnected" );
+
 				base.OnDisconnected( connection, data );
 			}
 

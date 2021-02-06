@@ -86,9 +86,16 @@ namespace Steamworks.Data
 		internal static readonly int k_nSteamNetworkingSend_Reliable = 8;
 		internal static readonly int k_nSteamNetworkingSend_ReliableNoNagle = k_nSteamNetworkingSend_Reliable | k_nSteamNetworkingSend_NoNagle;
 		internal static readonly int k_nSteamNetworkingSend_UseCurrentThread = 16;
+		internal static readonly int k_nSteamNetworkingSend_AutoRestartBrokenSession = 32;
 		internal static readonly int k_cchMaxSteamNetworkingPingLocationString = 1024;
 		internal static readonly int k_nSteamNetworkingPing_Failed = - 1;
 		internal static readonly int k_nSteamNetworkingPing_Unknown = - 2;
+		internal static readonly int k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Default = - 1;
+		internal static readonly int k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Disable = 0;
+		internal static readonly int k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Relay = 1;
+		internal static readonly int k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Private = 2;
+		internal static readonly int k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Public = 4;
+		internal static readonly int k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_All = 0x7fffffff;
 		internal static readonly SteamNetworkingPOPID k_SteamDatagramPOPID_dev = ( ( uint ) 'd' << 16 ) | ( ( uint ) 'e' << 8 ) | ( uint ) 'v';
 		internal static readonly uint k_unServerFlagNone = 0x00;
 		internal static readonly uint k_unServerFlagActive = 0x01;

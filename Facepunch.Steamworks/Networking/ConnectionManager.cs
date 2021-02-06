@@ -1,6 +1,5 @@
 ﻿using Steamworks.Data;
 using System;
-using System.Runtime.InteropServices;
 
 namespace Steamworks
 {
@@ -36,7 +35,10 @@ namespace Steamworks
 			set => Connection.UserData = value;
 		}
 
-		public void Close() => Connection.Close();
+		public void Close( bool linger = false, int reasonCode = 0, string debugString = "Closing Connection" )
+		{
+			Connection.Close( linger, reasonCode, debugString );
+		}
 
 		public override string ToString() => Connection.ToString();
 
@@ -44,18 +46,40 @@ namespace Steamworks
 		{
 			ConnectionInfo = info;
 
+			//
+			// Some notes:
+			// - Update state before the callbacks, in case an exception is thrown
+			// - ConnectionState.None happens when a connection is destroyed, even if it was already disconnected (ClosedByPeer / ProblemDetectedLocally)
+			//
 			switch ( info.State )
 			{
 				case ConnectionState.Connecting:
-					OnConnecting( info );
+					if ( !Connecting && !Connected )
+					{
+						Connecting = true;
+
+						OnConnecting( info );
+					}
 					break;
 				case ConnectionState.Connected:
-					OnConnected( info );
+					if ( Connecting && !Connected )
+					{
+						Connecting = false;
+						Connected = true;
+
+						OnConnected( info );
+					}
 					break;
 				case ConnectionState.ClosedByPeer:
 				case ConnectionState.ProblemDetectedLocally:
 				case ConnectionState.None:
-					OnDisconnected( info );
+					if ( Connecting || Connected )
+					{
+						Connecting = false;
+						Connected = false;
+
+						OnDisconnected( info );
+					}
 					break;
 			}
 		}
@@ -66,8 +90,6 @@ namespace Steamworks
 		public virtual void OnConnecting( ConnectionInfo info )
 		{
 			Interface?.OnConnecting( info );
-
-			Connecting = true;
 		}
 
 		/// <summary>
@@ -76,9 +98,6 @@ namespace Steamworks
 		public virtual void OnConnected( ConnectionInfo info )
 		{
 			Interface?.OnConnected( info );
-
-			Connected = true;
-			Connecting = false;
 		}
 
 		/// <summary>
@@ -87,50 +106,48 @@ namespace Steamworks
 		public virtual void OnDisconnected( ConnectionInfo info )
 		{
 			Interface?.OnDisconnected( info );
-
-			Connected = false;
-			Connecting = false;
 		}
 
-		public void Receive( int bufferSize = 32 )
-		{
-			int processed = 0;
-			IntPtr messageBuffer = Marshal.AllocHGlobal( IntPtr.Size * bufferSize );
+		public unsafe int Receive( int bufferSize = 32, bool receiveToEnd = true )
+        {
+            if ( bufferSize < 1 || bufferSize > 256 ) throw new ArgumentOutOfRangeException( nameof( bufferSize ) );
 
-			try
-			{
-				processed = SteamNetworkingSockets.Internal.ReceiveMessagesOnConnection( Connection, messageBuffer, bufferSize );
+			int totalProcessed = 0;
+            NetMsg** messageBuffer = stackalloc NetMsg*[bufferSize];
+			
+			while ( true )
+            {
+				int processed = SteamNetworkingSockets.Internal.ReceiveMessagesOnConnection( Connection, new IntPtr( &messageBuffer[0] ), bufferSize );
+                totalProcessed += processed;
 
-				for ( int i = 0; i < processed; i++ )
-				{
-					ReceiveMessage( Marshal.ReadIntPtr( messageBuffer, i * IntPtr.Size ) );
-				}
+			    for ( int i = 0; i < processed; i++ )
+			    {
+				    // TODO: if this throws we will leak the remaining NetMsgs (probably not going to happen much though)
+				    ReceiveMessage( messageBuffer[i] );
+			    }
+
+			    //
+			    // Keep going if receiveToEnd and we filled the buffer
+			    //
+			    if ( !receiveToEnd || processed < bufferSize )
+				    break;
 			}
-			finally
-			{
-				Marshal.FreeHGlobal( messageBuffer );
-			}
 
-			//
-			// Overwhelmed our buffer, keep going
-			//
-			if ( processed == bufferSize )
-				Receive( bufferSize );
+			return totalProcessed;
 		}
 
-		internal unsafe void ReceiveMessage( IntPtr msgPtr )
+		internal unsafe void ReceiveMessage( NetMsg* msg )
 		{
-			var msg = Marshal.PtrToStructure<NetMsg>( msgPtr );
 			try
 			{
-				OnMessage( msg.DataPtr, msg.DataSize, msg.RecvTime, msg.MessageNumber, msg.Channel );
+				OnMessage( msg->DataPtr, msg->DataSize, msg->RecvTime, msg->MessageNumber, msg->Channel );
 			}
 			finally
 			{
 				//
 				// Releases the message
 				//
-				NetMsg.InternalRelease( (NetMsg*) msgPtr );
+				NetMsg.InternalRelease( msg );
 			}
 		}
 
