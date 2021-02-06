@@ -136,6 +136,11 @@ namespace Steamworks.Data
 					return Utility.Int32ToIp( ip );
 				}
 
+				if ( IsIPv6AllZeros )
+				{
+					return IPAddress.IPv6Loopback;
+				}
+
 				throw new System.NotImplementedException( "Oops - no IPV6 support yet?" );
 			}
 		}
@@ -144,7 +149,7 @@ namespace Steamworks.Data
 		{
 			var ptr = Helpers.TakeMemory();
 			var self = this;
-			InternalToString( ref self, ptr, Helpers.MaxStringSize, true );
+			InternalToString( ref self, ptr, Helpers.MemoryBufferSize, true );
 			return Helpers.MemoryToString( ptr );
 		}
 	}

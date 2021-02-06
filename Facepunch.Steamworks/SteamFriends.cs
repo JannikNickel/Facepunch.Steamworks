@@ -30,10 +30,12 @@ namespace Steamworks
 			Dispatch.Install<PersonaStateChange_t>( x => OnPersonaStateChange?.Invoke( new Friend( x.SteamID ) ) );
 			Dispatch.Install<GameRichPresenceJoinRequested_t>( x => OnGameRichPresenceJoinRequested?.Invoke( new Friend( x.SteamIDFriend), x.ConnectUTF8() ) );
 			Dispatch.Install<GameConnectedFriendChatMsg_t>( OnFriendChatMessage );
+			Dispatch.Install<GameConnectedClanChatMsg_t>( OnGameConnectedClanChatMessage );
 			Dispatch.Install<GameOverlayActivated_t>( x => OnGameOverlayActivated?.Invoke( x.Active != 0 ) );
 			Dispatch.Install<GameServerChangeRequested_t>( x => OnGameServerChangeRequested?.Invoke( x.ServerUTF8(), x.PasswordUTF8() ) );
 			Dispatch.Install<GameLobbyJoinRequested_t>( x => OnGameLobbyJoinRequested?.Invoke( new Lobby( x.SteamIDLobby ), x.SteamIDFriend ) );
 			Dispatch.Install<FriendRichPresenceUpdate_t>( x => OnFriendRichPresenceUpdate?.Invoke( new Friend( x.SteamIDFriend ) ) );
+			Dispatch.Install<OverlayBrowserProtocolNavigation_t>( x => OnOverlayBrowserProtocol?.Invoke( x.RgchURIUTF8() ) );
 		}
 
 		/// <summary>
@@ -41,6 +43,11 @@ namespace Steamworks
 		/// ListenForFriendsMessages to recieve this. (friend, msgtype, message)
 		/// </summary>
 		public static event Action<Friend, string, string> OnChatMessage;
+
+		/// <summary>
+		/// Called when a chat message has been received in a Steam group chat that we are in. Associated Functions: JoinClanChatRoom. (friend, msgtype, message)
+		/// </summary>
+		public static event Action<Friend, string, string> OnClanChatMessage;
 
 		/// <summary>
 		/// called when a friends' status changes
@@ -77,29 +84,54 @@ namespace Steamworks
 		/// </summary>
 		public static event Action<Friend> OnFriendRichPresenceUpdate;
 
+		/// <summary>
+		/// Dispatched when an overlay browser instance is navigated to a
+		/// protocol/scheme registered by RegisterProtocolInOverlayBrowser()
+		/// </summary>
+		public static event Action<string> OnOverlayBrowserProtocol;
+
+
 		static unsafe void OnFriendChatMessage( GameConnectedFriendChatMsg_t data )
 		{
 			if ( OnChatMessage == null ) return;
 
 			var friend = new Friend( data.SteamIDUser );
 
-			var buffer = Helpers.TakeBuffer( 1024 * 32 );
+			var buffer = Helpers.TakeMemory();
 			var type = ChatEntryType.ChatMsg;
 
-			fixed ( byte* ptr = buffer )
-			{
-				var len = Internal.GetFriendMessage( data.SteamIDUser, data.MessageID, (IntPtr)ptr, buffer.Length, ref type );
+			var len = Internal.GetFriendMessage( data.SteamIDUser, data.MessageID, buffer, Helpers.MemoryBufferSize, ref type );
 
-				if ( len == 0 && type == ChatEntryType.Invalid )
-					return;
+			if ( len == 0 && type == ChatEntryType.Invalid )
+				return;
 
-				var typeName = type.ToString();
-				var message = Encoding.UTF8.GetString( buffer, 0, len );
+			var typeName = type.ToString();
+			var message = Helpers.MemoryToString( buffer );
 
-				OnChatMessage( friend, typeName, message );
-			}
+			OnChatMessage( friend, typeName, message );
 		}
-		
+
+		static unsafe void OnGameConnectedClanChatMessage( GameConnectedClanChatMsg_t data )
+		{
+			if ( OnClanChatMessage == null ) return;
+
+			var friend = new Friend( data.SteamIDUser );
+
+			var buffer = Helpers.TakeMemory();
+			var type = ChatEntryType.ChatMsg;
+			SteamId chatter = data.SteamIDUser;
+
+			var len = Internal.GetClanChatMessage( data.SteamIDClanChat, data.MessageID, buffer, Helpers.MemoryBufferSize, ref type, ref chatter );
+
+			if ( len == 0 && type == ChatEntryType.Invalid )
+				return;
+
+			var typeName = type.ToString();
+			var message = Helpers.MemoryToString( buffer );
+
+			OnClanChatMessage( friend, typeName, message );
+		}
+
 		private static IEnumerable<Friend> GetFriendsWithFlag(FriendFlags flag)
 		{
 			for ( int i=0; i<Internal.GetFriendCount( (int)flag); i++ )
@@ -154,6 +186,14 @@ namespace Steamworks
 		    }
 		}
 
+		public static IEnumerable<Clan> GetClans()
+		{
+			for (int i = 0; i < Internal.GetClanCount(); i++)
+			{
+				yield return new Clan( Internal.GetClanByIndex( i ) );
+			}
+		}
+
 		/// <summary>
 		/// The dialog to open. Valid options are: 
 		/// "friends", 
@@ -182,7 +222,7 @@ namespace Steamworks
 		/// <summary>
 		/// Activates the Steam Overlay to the Steam store page for the provided app.
 		/// </summary>
-		public static void OpenStoreOverlay( AppId id ) => Internal.ActivateGameOverlayToStore( id.Value, OverlayToStoreFlag.None );
+		public static void OpenStoreOverlay( AppId id, OverlayToStoreFlag overlayToStoreFlag = OverlayToStoreFlag.None ) => Internal.ActivateGameOverlayToStore( id.Value, overlayToStoreFlag );
 
 		/// <summary>
 		/// Activates Steam Overlay web browser directly to the specified URL.
@@ -340,5 +380,28 @@ namespace Steamworks
 
             return steamIds.ToArray();
         }
-    }
+
+		/// <summary>
+		/// Call this before calling ActivateGameOverlayToWebPage() to have the Steam Overlay Browser block navigations
+		///  to your specified protocol (scheme) uris and instead dispatch a OverlayBrowserProtocolNavigation callback to your game.
+		/// </summary>
+		public static bool RegisterProtocolInOverlayBrowser( string protocol )
+        {
+			return Internal.RegisterProtocolInOverlayBrowser( protocol );
+        }
+
+		public static async Task<bool> JoinClanChatRoom( SteamId chatId )
+		{
+			var result = await Internal.JoinClanChatRoom( chatId );
+			if ( !result.HasValue )
+				return false;
+
+			return result.Value.ChatRoomEnterResponse == RoomEnter.Success ;
+		}
+
+		public static bool SendClanChatRoomMessage( SteamId chatId, string message )
+		{
+			return Internal.SendClanChatMessage( chatId, message );
+		}
+	}
 }

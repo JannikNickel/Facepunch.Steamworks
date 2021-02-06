@@ -177,6 +177,49 @@ namespace Steamworks
 			set => SetConfigInt( NetConfig.TimeoutConnected, value );
 		}
 
+		/// <summary>
+		/// Upper limit of buffered pending bytes to be sent.
+		/// If this is reached SendMessage will return LimitExceeded.
+		/// Default is 524288 bytes (512k)
+		/// </summary>
+		public static int SendBufferSize
+		{
+			get => GetConfigInt( NetConfig.SendBufferSize );
+			set => SetConfigInt( NetConfig.SendBufferSize, value );
+		}
+
+		/// <summary>
+		/// Don't automatically fail IP connections that don't have
+		/// strong auth.  On clients, this means we will attempt the connection even if
+		/// we don't know our identity or can't get a cert.  On the server, it means that
+		/// we won't automatically reject a connection due to a failure to authenticate.
+		/// (You can examine the incoming connection and decide whether to accept it.)
+		///
+		/// This is a dev configuration value, and you should not let users modify it in
+		/// production.
+		/// </summary>
+		public static int AllowWithoutAuth
+		{
+			get => GetConfigInt( NetConfig.IP_AllowWithoutAuth );
+			set => SetConfigInt( NetConfig.IP_AllowWithoutAuth, value );
+		}
+
+		/// <summary>
+		/// Allow unencrypted (and unauthenticated) communication.
+		/// 0: Not allowed (the default)
+		/// 1: Allowed, but prefer encrypted
+		/// 2: Allowed, and preferred
+		/// 3: Required.  (Fail the connection if the peer requires encryption.)
+		///
+		/// This is a dev configuration value, since its purpose is to disable encryption.
+		/// You should not let users modify it in production.  (But note that it requires
+		/// the peer to also modify their value in order for encryption to be disabled.)
+		/// </summary>
+		public static int Unencrypted
+		{
+			get => GetConfigInt( NetConfig.Unencrypted );
+			set => SetConfigInt( NetConfig.Unencrypted, value );
+		}
 
 		/// <summary>
 		/// Get Debug Information via OnDebugOutput event
@@ -222,6 +265,7 @@ namespace Steamworks
 		/// <summary>
 		/// This can be called from other threads - so we're going to queue these up and process them in a safe place.
 		/// </summary>
+		[MonoPInvokeCallback]
 		private static void OnDebugMessage( NetDebugOutput nType, IntPtr str )
 		{
 			debugMessages.Enqueue( new DebugMessage { Type = nType, Msg = Helpers.MemoryToString( str ) } );

@@ -53,7 +53,7 @@ namespace Steamworks
 		/// Checks if the license owned by the user provides low violence depots.
 		/// Low violence depots are useful for copies sold in countries that have content restrictions
 		/// </summary>
-		public static bool IsLowVoilence => Internal.BIsLowViolence();
+		public static bool IsLowViolence => Internal.BIsLowViolence();
 
 		/// <summary>
 		/// Checks whether the current App ID license is for Cyber Cafes.
@@ -265,6 +265,25 @@ namespace Steamworks
 				return strVal;
 			}
 		}
+
+		/// <summary>
+		///  check if game is a timed trial with limited playtime
+		/// </summary>
+		public static bool IsTimedTrial( out int secondsAllowed, out int secondsPlayed )
+        {
+			uint a = 0;
+			uint b = 0;
+			secondsAllowed = 0;
+			secondsPlayed = 0;
+
+			if ( !Internal.BIsTimedTrial( ref a, ref b ) )
+				return false;
+
+			secondsAllowed = (int) a;
+			secondsPlayed = (int) b;
+
+			return true;
+        }
 
 	}
 }
