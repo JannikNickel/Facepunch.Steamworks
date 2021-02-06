@@ -221,10 +221,13 @@ namespace Steamworks
 				await Task.Delay( 50 );
 			}
 
-			//
-			// And extra wait here seems to solve avatars loading as [?]
-			//
-			await Task.Delay( 500 );
+            //
+            // And extra wait here seems to solve avatars loading as [?]
+            //
+            if(nameonly == false)//Test
+            {
+				await Task.Delay(500);
+			}
 		}
 
 		public static async Task<Data.Image?> GetSmallAvatarAsync( SteamId steamid )

@@ -110,7 +110,7 @@ namespace Steamworks.Data
 				return null;
 
 			LeaderboardEntry[] entries = await LeaderboardResultToEntries(r.Value);
-			if(entries.Length > 0)
+			if(entries != null && entries.Length > 0)
 			{
 				return entries[0];
 			}

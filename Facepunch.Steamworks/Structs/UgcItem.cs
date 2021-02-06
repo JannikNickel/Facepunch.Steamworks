@@ -366,5 +366,26 @@ namespace Steamworks.Ugc
 		}
 		
 		public Result Result => details.Result;
+
+		public async Task<string> RequestPreviewImageUrl()
+		{
+			UGCQueryHandle_t handle;
+			handle = SteamUGC.Internal.CreateQueryUGCDetailsRequest(new PublishedFileId[] { Id }, 1);
+			var result = await SteamUGC.Internal.SendQueryUGCRequest(handle);
+            if(result.HasValue == false)
+            {
+				return null;
+            }
+            if(result.Value.Result != Result.OK)
+            {
+				return null;
+            }
+
+			if(SteamUGC.Internal.GetQueryUGCPreviewURL(result.Value.Handle, 0, out string preview))
+			{
+				return preview;
+			}
+			return null;
+		}
 	}
 }
