@@ -21,7 +21,7 @@ namespace Steamworks
 		public ConnectionInfo ConnectionInfo { get; internal set; }
 
 		public bool Connected = false;
-		public bool Connecting = true;
+		public bool Connecting = false;
 
 		public string ConnectionName
 		{
