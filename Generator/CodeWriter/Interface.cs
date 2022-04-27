@@ -23,7 +23,7 @@ namespace Generator
 
 			StartBlock( $"namespace Steamworks" );
 			{
-				StartBlock( $"internal class {iface.Name} : SteamInterface" );
+				StartBlock( $"internal unsafe class {iface.Name} : SteamInterface" );
 				{
 					WriteLine();
 					StartBlock( $"internal {iface.Name}( bool IsGameServer )" );
@@ -152,7 +152,7 @@ namespace Generator
 				{
 					if ( arg is FetchStringType sb )
 					{
-						WriteLine( $"IntPtr mem{sb.VarName} = Helpers.TakeMemory();" );
+						WriteLine( $"using var mem{sb.VarName} = Helpers.TakeMemory();" );
 					}
 				}
 

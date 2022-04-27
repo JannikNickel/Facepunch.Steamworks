@@ -18,6 +18,7 @@ public static class Cleanup
 		type = type.Replace( "uint32", "uint" );
 		type = type.Replace( "int32_t", "int" );
 		type = type.Replace( "int64_t", "long" );
+		type = type.Replace( "uint16", "ushort" );
 
 		type = type.Replace( "CSteamID", "SteamId" );
 		type = type.Replace( "CGameID", "GameId" );
@@ -59,10 +60,12 @@ public static class Cleanup
 		type = type.Replace( "ISteamNetworkingMessage", "NetMsg" );
 		type = type.Replace( "SteamNetworkingMessage_t", "NetMsg" );
 		type = type.Replace( "SteamIPAddress_t", "SteamIPAddress" );
-		type = type.Replace( "SteamNetworkingQuickConnectionStatus", "ConnectionStatus" );
+		type = type.Replace( "SteamNetConnectionRealTimeStatus_t", "ConnectionStatus" );
+		type = type.Replace( "SteamNetConnectionRealTimeLaneStatus_t", "ConnectionLaneStatus" );
+		type = type.Replace( "SteamInputGlyphSize", "GlyphSize" );
+		type = type.Replace( "FloatingGamepadTextInputMode", "TextInputMode" );
 
 		type = type.Replace( "::", "." );
-
 
 		if ( type == "EPersonaState" ) return "EFriendState";
 		if ( type == "PersonaState" ) return "FriendState";
@@ -103,6 +106,8 @@ public static class Cleanup
 		if ( type == "CCallbackBase" ) return false;
 		if ( type == "CSteamGameServerAPIContext" ) return false;
 		if ( type == "ConnectionStatus") return false;
+		if ( type == "ConnectionLaneStatus" ) return false;
+		if ( type == "SteamInputActionEventCallbackPointer" ) return false;
 		if ( type.StartsWith( "FnSteam" ) ) return false;
 
 		return true;
@@ -144,6 +149,9 @@ public static class Cleanup
 		if ( name == "NetDebugOutput" ) return "public";
 		if ( name == "ItemPreviewType" ) return "public";
 		if ( name == "OverlayToStoreFlag" ) return "public";
+		if ( name == "TextFilteringContext" ) return "public";
+		if ( name == "GlyphSize" ) return "public";
+		if ( name == "TextInputMode" ) return "public";
 
 		return "internal";
 	}
@@ -155,7 +163,13 @@ public static class Cleanup
 		if ( name == "SocketStatusCallback_t" ) return true;
 		if ( name == "SNetSocketConnectionType" ) return true;
 		if ( name == "SNetSocketState" ) return true;
+
 		
+		if ( name.StartsWith( "ISteamInput." ) )
+		{
+			if ( name.Contains( "EnableActionEventCallbacks" ) ) return true;
+		}
+
 		if ( name.StartsWith( "ISteamRemoteStorage." ) )
 		{
 			if ( name.Contains( "Publish" ) ) return true;

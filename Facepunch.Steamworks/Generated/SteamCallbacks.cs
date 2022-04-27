@@ -7,31 +7,6 @@ using System.Threading.Tasks;
 namespace Steamworks.Data
 {
 	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct BroadcastUploadStart_t : ICallbackData
-	{
-		[MarshalAs(UnmanagedType.I1)]
-		internal bool IsRTMP; // m_bIsRTMP bool
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(BroadcastUploadStart_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.BroadcastUploadStart;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct BroadcastUploadStop_t : ICallbackData
-	{
-		internal BroadcastUploadResult Result; // m_eResult EBroadcastUploadResult
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(BroadcastUploadStop_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.BroadcastUploadStop;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
 	internal struct SteamServersConnected_t : ICallbackData
 	{
 		
@@ -587,6 +562,28 @@ namespace Steamworks.Data
 	}
 	
 	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct AppResumingFromSuspend_t : ICallbackData
+	{
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(AppResumingFromSuspend_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.AppResumingFromSuspend;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct FloatingGamepadTextInputDismissed_t : ICallbackData
+	{
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(FloatingGamepadTextInputDismissed_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.FloatingGamepadTextInputDismissed;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
 	internal struct FavoritesListChanged_t : ICallbackData
 	{
 		internal uint IP; // m_nIP uint32
@@ -950,66 +947,6 @@ namespace Steamworks.Data
 		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(ActiveBeaconsUpdated_t) );
 		public int DataSize => _datasize;
 		public CallbackType CallbackType => CallbackType.ActiveBeaconsUpdated;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct RemoteStorageAppSyncedClient_t : ICallbackData
-	{
-		internal AppId AppID; // m_nAppID AppId_t
-		internal Result Result; // m_eResult EResult
-		internal int NumDownloads; // m_unNumDownloads int
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(RemoteStorageAppSyncedClient_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.RemoteStorageAppSyncedClient;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct RemoteStorageAppSyncedServer_t : ICallbackData
-	{
-		internal AppId AppID; // m_nAppID AppId_t
-		internal Result Result; // m_eResult EResult
-		internal int NumUploads; // m_unNumUploads int
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(RemoteStorageAppSyncedServer_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.RemoteStorageAppSyncedServer;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct RemoteStorageAppSyncProgress_t : ICallbackData
-	{
-		internal string CurrentFileUTF8() => System.Text.Encoding.UTF8.GetString( CurrentFile, 0, System.Array.IndexOf<byte>( CurrentFile, 0 ) );
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 260)] // byte[] m_rgchCurrentFile
-		internal byte[] CurrentFile; // m_rgchCurrentFile char [260]
-		internal AppId AppID; // m_nAppID AppId_t
-		internal uint BytesTransferredThisChunk; // m_uBytesTransferredThisChunk uint32
-		internal double DAppPercentComplete; // m_dAppPercentComplete double
-		[MarshalAs(UnmanagedType.I1)]
-		internal bool Uploading; // m_bUploading bool
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(RemoteStorageAppSyncProgress_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.RemoteStorageAppSyncProgress;
-		#endregion
-	}
-	
-	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
-	internal struct RemoteStorageAppSyncStatusCheck_t : ICallbackData
-	{
-		internal AppId AppID; // m_nAppID AppId_t
-		internal Result Result; // m_eResult EResult
-		
-		#region SteamCallback
-		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(RemoteStorageAppSyncStatusCheck_t) );
-		public int DataSize => _datasize;
-		public CallbackType CallbackType => CallbackType.RemoteStorageAppSyncStatusCheck;
 		#endregion
 	}
 	
@@ -1400,6 +1337,17 @@ namespace Steamworks.Data
 		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(RemoteStorageFileReadAsyncComplete_t) );
 		public int DataSize => _datasize;
 		public CallbackType CallbackType => CallbackType.RemoteStorageFileReadAsyncComplete;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct RemoteStorageLocalFileChange_t : ICallbackData
+	{
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(RemoteStorageLocalFileChange_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.RemoteStorageLocalFileChange;
 		#endregion
 	}
 	
@@ -1940,6 +1888,50 @@ namespace Steamworks.Data
 	}
 	
 	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct SteamInputDeviceConnected_t : ICallbackData
+	{
+		internal ulong ConnectedDeviceHandle; // m_ulConnectedDeviceHandle InputHandle_t
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamInputDeviceConnected_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.SteamInputDeviceConnected;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct SteamInputDeviceDisconnected_t : ICallbackData
+	{
+		internal ulong DisconnectedDeviceHandle; // m_ulDisconnectedDeviceHandle InputHandle_t
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamInputDeviceDisconnected_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.SteamInputDeviceDisconnected;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPackSize )]
+	internal struct SteamInputConfigurationLoaded_t : ICallbackData
+	{
+		internal AppId AppID; // m_unAppID AppId_t
+		internal ulong DeviceHandle; // m_ulDeviceHandle InputHandle_t
+		internal ulong MappingCreator; // m_ulMappingCreator CSteamID
+		internal uint MajorRevision; // m_unMajorRevision uint32
+		internal uint MinorRevision; // m_unMinorRevision uint32
+		[MarshalAs(UnmanagedType.I1)]
+		internal bool UsesSteamInputAPI; // m_bUsesSteamInputAPI bool
+		[MarshalAs(UnmanagedType.I1)]
+		internal bool UsesGamepadAPI; // m_bUsesGamepadAPI bool
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamInputConfigurationLoaded_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.SteamInputConfigurationLoaded;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
 	internal struct SteamUGCQueryCompleted_t : ICallbackData
 	{
 		internal ulong Handle; // m_handle UGCQueryHandle_t
@@ -2190,9 +2182,41 @@ namespace Steamworks.Data
 	}
 	
 	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct UserSubscribedItemsListChanged_t : ICallbackData
+	{
+		internal AppId AppID; // m_nAppID AppId_t
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(UserSubscribedItemsListChanged_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.UserSubscribedItemsListChanged;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct WorkshopEULAStatus_t : ICallbackData
+	{
+		internal Result Result; // m_eResult EResult
+		internal AppId AppID; // m_nAppID AppId_t
+		internal uint Version; // m_unVersion uint32
+		internal uint TAction; // m_rtAction RTime32
+		[MarshalAs(UnmanagedType.I1)]
+		internal bool Accepted; // m_bAccepted bool
+		[MarshalAs(UnmanagedType.I1)]
+		internal bool NeedsAction; // m_bNeedsAction bool
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(WorkshopEULAStatus_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.WorkshopEULAStatus;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
 	internal struct SteamAppInstalled_t : ICallbackData
 	{
 		internal AppId AppID; // m_nAppID AppId_t
+		internal int InstallFolderIndex; // m_iInstallFolderIndex int
 		
 		#region SteamCallback
 		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamAppInstalled_t) );
@@ -2205,6 +2229,7 @@ namespace Steamworks.Data
 	internal struct SteamAppUninstalled_t : ICallbackData
 	{
 		internal AppId AppID; // m_nAppID AppId_t
+		internal int InstallFolderIndex; // m_iInstallFolderIndex int
 		
 		#region SteamCallback
 		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamAppUninstalled_t) );
@@ -2957,6 +2982,22 @@ namespace Steamworks.Data
 		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(GSStatsUnloaded_t) );
 		public int DataSize => _datasize;
 		public CallbackType CallbackType => CallbackType.GSStatsUnloaded;
+		#endregion
+	}
+	
+	[StructLayout( LayoutKind.Sequential, Pack = Platform.StructPlatformPackSize )]
+	internal struct SteamNetworkingFakeIPResult_t : ICallbackData
+	{
+		internal Result Result; // m_eResult EResult
+		internal NetIdentity Dentity; // m_identity SteamNetworkingIdentity
+		internal uint IP; // m_unIP uint32
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 8, ArraySubType = UnmanagedType.U2)]
+		internal ushort[] Ports; // m_unPorts uint16 [8]
+		
+		#region SteamCallback
+		public static int _datasize = System.Runtime.InteropServices.Marshal.SizeOf( typeof(SteamNetworkingFakeIPResult_t) );
+		public int DataSize => _datasize;
+		public CallbackType CallbackType => CallbackType.SteamNetworkingFakeIPResult;
 		#endregion
 	}
 	

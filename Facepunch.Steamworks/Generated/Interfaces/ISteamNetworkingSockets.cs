@@ -7,7 +7,7 @@ using Steamworks.Data;
 
 namespace Steamworks
 {
-	internal class ISteamNetworkingSockets : SteamInterface
+	internal unsafe class ISteamNetworkingSockets : SteamInterface
 	{
 		
 		internal ISteamNetworkingSockets( bool IsGameServer )
@@ -15,12 +15,12 @@ namespace Steamworks
 			SetupInterface( IsGameServer );
 		}
 		
-		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_SteamNetworkingSockets_v009", CallingConvention = Platform.CC)]
-		internal static extern IntPtr SteamAPI_SteamNetworkingSockets_v009();
-		public override IntPtr GetUserInterfacePointer() => SteamAPI_SteamNetworkingSockets_v009();
-		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_SteamGameServerNetworkingSockets_v009", CallingConvention = Platform.CC)]
-		internal static extern IntPtr SteamAPI_SteamGameServerNetworkingSockets_v009();
-		public override IntPtr GetServerInterfacePointer() => SteamAPI_SteamGameServerNetworkingSockets_v009();
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_SteamNetworkingSockets_SteamAPI_v012", CallingConvention = Platform.CC)]
+		internal static extern IntPtr SteamAPI_SteamNetworkingSockets_SteamAPI_v012();
+		public override IntPtr GetUserInterfacePointer() => SteamAPI_SteamNetworkingSockets_SteamAPI_v012();
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_SteamGameServerNetworkingSockets_SteamAPI_v012", CallingConvention = Platform.CC)]
+		internal static extern IntPtr SteamAPI_SteamGameServerNetworkingSockets_SteamAPI_v012();
+		public override IntPtr GetServerInterfacePointer() => SteamAPI_SteamGameServerNetworkingSockets_SteamAPI_v012();
 		
 		
 		#region FunctionMeta
@@ -143,7 +143,7 @@ namespace Steamworks
 		#endregion
 		internal bool GetConnectionName( Connection hPeer, out string pszName )
 		{
-			IntPtr mempszName = Helpers.TakeMemory();
+			using var mempszName = Helpers.TakeMemory();
 			var returnValue = _GetConnectionName( Self, hPeer, mempszName, (1024 * 32) );
 			pszName = Helpers.MemoryToString( mempszName );
 			return returnValue;
@@ -162,12 +162,12 @@ namespace Steamworks
 		
 		#region FunctionMeta
 		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_SendMessages", CallingConvention = Platform.CC)]
-		private static extern void _SendMessages( IntPtr self, int nMessages, ref NetMsg pMessages, [In,Out] long[]  pOutMessageNumberOrResult );
+		private static extern void _SendMessages( IntPtr self, int nMessages, NetMsg** pMessages, long* pOutMessageNumberOrResult );
 		
 		#endregion
-		internal void SendMessages( int nMessages, ref NetMsg pMessages, [In,Out] long[]  pOutMessageNumberOrResult )
+		internal void SendMessages( int nMessages, NetMsg** pMessages, long* pOutMessageNumberOrResult )
 		{
-			_SendMessages( Self, nMessages, ref pMessages, pOutMessageNumberOrResult );
+			_SendMessages( Self, nMessages, pMessages, pOutMessageNumberOrResult );
 		}
 		
 		#region FunctionMeta
@@ -205,14 +205,13 @@ namespace Steamworks
 		}
 		
 		#region FunctionMeta
-		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_GetQuickConnectionStatus", CallingConvention = Platform.CC)]
-		[return: MarshalAs( UnmanagedType.I1 )]
-		private static extern bool _GetQuickConnectionStatus( IntPtr self, Connection hConn, ref ConnectionStatus pStats );
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_GetConnectionRealTimeStatus", CallingConvention = Platform.CC)]
+		private static extern Result _GetConnectionRealTimeStatus( IntPtr self, Connection hConn, ref ConnectionStatus pStatus, int nLanes, [In,Out] ConnectionLaneStatus[]  pLanes );
 		
 		#endregion
-		internal bool GetQuickConnectionStatus( Connection hConn, ref ConnectionStatus pStats )
+		internal Result GetConnectionRealTimeStatus( Connection hConn, ref ConnectionStatus pStatus, int nLanes, [In,Out] ConnectionLaneStatus[]  pLanes )
 		{
-			var returnValue = _GetQuickConnectionStatus( Self, hConn, ref pStats );
+			var returnValue = _GetConnectionRealTimeStatus( Self, hConn, ref pStatus, nLanes, pLanes );
 			return returnValue;
 		}
 		
@@ -223,7 +222,7 @@ namespace Steamworks
 		#endregion
 		internal int GetDetailedConnectionStatus( Connection hConn, out string pszBuf )
 		{
-			IntPtr mempszBuf = Helpers.TakeMemory();
+			using var mempszBuf = Helpers.TakeMemory();
 			var returnValue = _GetDetailedConnectionStatus( Self, hConn, mempszBuf, (1024 * 32) );
 			pszBuf = Helpers.MemoryToString( mempszBuf );
 			return returnValue;
@@ -250,6 +249,17 @@ namespace Steamworks
 		internal bool CreateSocketPair( [In,Out] Connection[]  pOutConnection1, [In,Out] Connection[]  pOutConnection2, [MarshalAs( UnmanagedType.U1 )] bool bUseNetworkLoopback, ref NetIdentity pIdentity1, ref NetIdentity pIdentity2 )
 		{
 			var returnValue = _CreateSocketPair( Self, pOutConnection1, pOutConnection2, bUseNetworkLoopback, ref pIdentity1, ref pIdentity2 );
+			return returnValue;
+		}
+		
+		#region FunctionMeta
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_ConfigureConnectionLanes", CallingConvention = Platform.CC)]
+		private static extern Result _ConfigureConnectionLanes( IntPtr self, Connection hConn, int nNumLanes, [In,Out] int[]  pLanePriorities, [In,Out] ushort[]  pLaneWeights );
+		
+		#endregion
+		internal Result ConfigureConnectionLanes( Connection hConn, int nNumLanes, [In,Out] int[]  pLanePriorities, [In,Out] ushort[]  pLaneWeights )
+		{
+			var returnValue = _ConfigureConnectionLanes( Self, hConn, nNumLanes, pLanePriorities, pLaneWeights );
 			return returnValue;
 		}
 		
@@ -470,6 +480,16 @@ namespace Steamworks
 		}
 		
 		#region FunctionMeta
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_ResetIdentity", CallingConvention = Platform.CC)]
+		private static extern void _ResetIdentity( IntPtr self, ref NetIdentity pIdentity );
+		
+		#endregion
+		internal void ResetIdentity( ref NetIdentity pIdentity )
+		{
+			_ResetIdentity( Self, ref pIdentity );
+		}
+		
+		#region FunctionMeta
 		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_RunCallbacks", CallingConvention = Platform.CC)]
 		private static extern void _RunCallbacks( IntPtr self );
 		
@@ -477,6 +497,61 @@ namespace Steamworks
 		internal void RunCallbacks()
 		{
 			_RunCallbacks( Self );
+		}
+		
+		#region FunctionMeta
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_BeginAsyncRequestFakeIP", CallingConvention = Platform.CC)]
+		[return: MarshalAs( UnmanagedType.I1 )]
+		private static extern bool _BeginAsyncRequestFakeIP( IntPtr self, int nNumPorts );
+		
+		#endregion
+		internal bool BeginAsyncRequestFakeIP( int nNumPorts )
+		{
+			var returnValue = _BeginAsyncRequestFakeIP( Self, nNumPorts );
+			return returnValue;
+		}
+		
+		#region FunctionMeta
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_GetFakeIP", CallingConvention = Platform.CC)]
+		private static extern void _GetFakeIP( IntPtr self, int idxFirstPort, ref SteamNetworkingFakeIPResult_t pInfo );
+		
+		#endregion
+		internal void GetFakeIP( int idxFirstPort, ref SteamNetworkingFakeIPResult_t pInfo )
+		{
+			_GetFakeIP( Self, idxFirstPort, ref pInfo );
+		}
+		
+		#region FunctionMeta
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_CreateListenSocketP2PFakeIP", CallingConvention = Platform.CC)]
+		private static extern Socket _CreateListenSocketP2PFakeIP( IntPtr self, int idxFakePort, int nOptions, [In,Out] NetKeyValue[]  pOptions );
+		
+		#endregion
+		internal Socket CreateListenSocketP2PFakeIP( int idxFakePort, int nOptions, [In,Out] NetKeyValue[]  pOptions )
+		{
+			var returnValue = _CreateListenSocketP2PFakeIP( Self, idxFakePort, nOptions, pOptions );
+			return returnValue;
+		}
+		
+		#region FunctionMeta
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_GetRemoteFakeIPForConnection", CallingConvention = Platform.CC)]
+		private static extern Result _GetRemoteFakeIPForConnection( IntPtr self, Connection hConn, [In,Out] NetAddress[]  pOutAddr );
+		
+		#endregion
+		internal Result GetRemoteFakeIPForConnection( Connection hConn, [In,Out] NetAddress[]  pOutAddr )
+		{
+			var returnValue = _GetRemoteFakeIPForConnection( Self, hConn, pOutAddr );
+			return returnValue;
+		}
+		
+		#region FunctionMeta
+		[DllImport( Platform.LibraryName, EntryPoint = "SteamAPI_ISteamNetworkingSockets_CreateFakeUDPPort", CallingConvention = Platform.CC)]
+		private static extern IntPtr _CreateFakeUDPPort( IntPtr self, int idxFakeServerPort );
+		
+		#endregion
+		internal IntPtr CreateFakeUDPPort( int idxFakeServerPort )
+		{
+			var returnValue = _CreateFakeUDPPort( Self, idxFakeServerPort );
+			return returnValue;
 		}
 		
 	}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -72,7 +73,7 @@ namespace Steamworks
 					Receive();
 					await Task.Delay( 100 );
 
-					if ( sw.Elapsed.TotalSeconds > 10 )
+					if ( sw.Elapsed.TotalSeconds > 30 )
 					{
 						Assert.Fail( "Client Took Too Long" );
 						break;
@@ -95,9 +96,13 @@ namespace Steamworks
 					Console.WriteLine( $"[Connection][{messageNum}][{recvTime}][{channel}] Sending: How do you like 20 messages in a row?" );
 					Connection.SendMessage( "How do you like 20 messages in a row?" );
 
+					var connections = new[] { Connection };
+                    var results = new Result[1];
 					for ( int i=0; i<20; i++ )
 					{
-						Connection.SendMessage( $"BLAMMO!" );
+						Console.WriteLine( $"[Connection][{messageNum}][{recvTime}][{channel}] Sending: BLAMMO {i}!" );
+						SendMessages( connections, connections.Length, $"BLAMMO {i}!", results: results );
+						Assert.AreEqual( Result.OK, results[0] );
 					}
 
 					Connection.Flush();

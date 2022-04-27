@@ -76,23 +76,40 @@ internal class BaseType
 	public virtual bool ShouldSkipAsArgument => false;
 
 	public virtual string AsNativeArgument() => AsArgument();
-	public virtual string AsArgument() => IsVector ? $"[In,Out] {Ref}{TypeName.Trim( '*', ' ', '&' )}[]  {VarName}" : $"{Ref}{TypeName.Trim( '*', ' ', '&' )} {VarName}";
-	public virtual string AsCallArgument() => $"{Ref}{VarName}";
+	public virtual string AsArgument()
+    {
+        if (IsVector)
+        {
+            return $"[In,Out] {Ref}{TypeName.Trim('*', ' ', '&')}[]  {VarName}";
+        }
+
+        return TreatAsPointer
+            ? $"{Ref}{TypeName}{new string('*', NativeType.Count(c => c == '*'))} {VarName}"
+			: $"{Ref}{TypeName.Trim('*', ' ', '&')} {VarName}";
+    }
+
+    public virtual string AsCallArgument() => $"{Ref}{VarName}";
 
 	public virtual string Return( string varname ) => $"return {varname};";
 	public virtual string ReturnAttribute => null;
 
 	public virtual string ReturnType => TypeName;
 
-	public virtual string Ref => !IsVector && NativeType.EndsWith( "*" ) || NativeType.EndsWith( "**" ) || NativeType.Contains( "&" ) ? "ref " : "";
+	public virtual string Ref => !TreatAsPointer && !IsVector && NativeType.EndsWith( "*" ) || NativeType.EndsWith( "**" ) || NativeType.Contains( "&" ) ? "ref " : "";
+	
 	public virtual bool IsVector
 	{
 		get
-		{
+        {
+            if ( TreatAsPointer ) return false;
+
 			if ( Func == "ReadP2PPacket" ) return false;
 			if ( Func == "SendP2PPacket" ) return false;
 			if ( VarName == "pOutMessageNumber" ) return false;
 			if ( VarName == "pOptions" ) return true;
+			if ( VarName == "pLanes" ) return true;
+			if ( VarName == "pLanePriorities" ) return true;
+			if ( VarName == "pLaneWeights" ) return true;
 
 			if ( VarName == "pOut" ) return false;
 			if ( VarName == "pOutBuffer" ) return false;
@@ -124,6 +141,7 @@ internal class BaseType
 		}
 	}
 
+	public virtual bool TreatAsPointer => VarName == "pOutMessageNumberOrResult";
 
 	public virtual bool IsVoid => false;
 }
