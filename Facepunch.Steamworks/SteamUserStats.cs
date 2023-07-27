@@ -193,8 +193,12 @@ namespace Steamworks
 		public static bool AddStat( string name, int amount = 1 )
 		{
 			var val = GetStatInt( name );
+			if ( !val.HasValue )
+			{
+				return false;
+			}
 			val += amount;
-			return SetStat( name, val );
+			return SetStat( name, val.Value );
 		}
 
 		/// <summary>
@@ -205,8 +209,12 @@ namespace Steamworks
 		public static bool AddStat( string name, float amount = 1.0f )
 		{
 			var val = GetStatFloat( name );
+			if ( !val.HasValue )
+			{
+				return false;
+			}
 			val += amount;
-			return SetStat( name, val );
+			return SetStat( name, val.Value );
 		}
 
 		/// <summary>
@@ -228,21 +236,21 @@ namespace Steamworks
 		/// <summary>
 		/// Get an <see langword="int"/> stat value.
 		/// </summary>
-		public static int GetStatInt( string name )
+		public static int? GetStatInt( string name )
 		{
 			int data = 0;
-			Internal.GetStat( name, ref data );
-			return data;
+			bool result = Internal.GetStat( name, ref data );
+			return result ? data : null;
 		}
 
 		/// <summary>
 		/// Get a <see langword="float"/> stat value.
 		/// </summary>
-		public static float GetStatFloat( string name )
+		public static float? GetStatFloat( string name )
 		{
 			float data = 0;
-			Internal.GetStat( name, ref data );
-			return data;
+			bool result = Internal.GetStat( name, ref data );
+			return result ? data : null;
 		}
 
 		/// <summary>
