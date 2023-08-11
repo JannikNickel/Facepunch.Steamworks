@@ -218,7 +218,7 @@ namespace Steamworks
 		}
 
 		/// <summary>
-		/// Set a stat value. This will automatically call <see cref="StoreStats"/> after a successful call.
+		/// Set a stat value. This will only modify Steam's local storage, which will persist between play sessions. To store the settings on the steam servers call <see cref="StoreStats"/>
 		/// </summary>
 		public static bool SetStat( string name, int value )
 		{
@@ -226,7 +226,7 @@ namespace Steamworks
 		}
 
 		/// <summary>
-		/// Set a stat value. This will automatically call <see cref="StoreStats"/> after a successful call.
+		/// Set a stat value. This will only modify Steam's local storage, which will persist between play sessions. To store the settings on the steam servers call <see cref="StoreStats"/>
 		/// </summary>
 		public static bool SetStat( string name, float value )
 		{
